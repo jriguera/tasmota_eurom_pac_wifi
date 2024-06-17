@@ -1,4 +1,4 @@
-# Eurom Airco Protocol
+# Eurom PAC Wifi Airco Serial Protocol
 
 These are the results of reverse engineering the serial RS232 protocol used in Eurom PAC 12.2 Wifi & PAC 14.2 Wifi products between the Wi-Fi module which takes care of network and software features and the MCU which controls the hardware based on commands received from the Wi-Fi module or built-in controls (buttons, switches, remotes and similar) and reports the status back to the Wi-Fi module. 
 
@@ -23,7 +23,7 @@ The hardware and setup used to reverse engineering the protocol is described in 
 
 The description of the serial protocol is in [protocol.md](protocol.md).
 
-Thanks to Cem for helping me decoding the checksum algorithm used in the serial communication
+Thanks to [CemDK](https://github.com/CemDK) for helping me decoding the checksum algorithm used in the serial communication
 
 ## Tasmota configuration
 
