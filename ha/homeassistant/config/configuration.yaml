@@ -1,0 +1,131 @@
+# Loads default set of integrations. Do not remove.
+default_config:
+
+# logger:
+#   default: debug
+
+mqtt:
+  - climate:
+      name: "IrPanel"
+      unique_id: tasmota_wa_ir_panel
+      icon: "mdi:heating-coil"
+      max_temp: 37
+      min_temp: 0
+      precision: 1.0
+      optimistic: false
+      temperature_unit: C
+      modes:
+        - "off"
+        - "heat"
+        - "auto"
+      availability_topic: "tele/WorkingArea-IRPanel/LWT"
+      payload_available: Online
+      payload_not_available: Offline
+      action_topic: "stat/WorkingArea-IRPanel/action"
+      power_command_topic: "cmnd/WorkingArea-IRPanel/power"
+      mode_command_topic: "cmnd/WorkingArea-IRPanel/event"
+      mode_command_template: "mode={{value}}"
+      mode_state_topic: "stat/WorkingArea-IRPanel/mode"
+      json_attributes_topic: "tele/WorkingArea-IRPanel/RESULT"
+      json_attributes_template: "{{ value_json | tojson }}"
+      temperature_command_topic: "cmnd/WorkingArea-IRPanel/event"
+      temperature_command_template: "temperature={{int(value)}}"
+      temperature_state_topic: "stat/WorkingArea-IRPanel/tempset"
+      current_temperature_topic: "tele/WorkingArea-IRPanel/SENSOR"
+      current_temperature_template: "{{value_json['TuyaSNS']['Temperature']}}"
+
+  - fan:
+      name: "BV_CeilingFan"
+      unique_id: tasmota_bv_ceilingfan
+      optimistic: false
+      availability_topic: "tele/BV_CeilingFan/LWT"
+      payload_available: Online
+      payload_not_available: Offline
+      preset_modes:
+      - 'low'
+      - 'medium'
+      - 'high'
+      state_topic: "tele/BV_CeilingFan/STATE"
+      state_value_template: "{{ iif(value_json.FanSpeed == 0, 'OFF', 'ON') }}"
+      command_topic: "cmnd/BV_CeilingFan/FanSpeed"
+      preset_mode_command_topic: "cmnd/BV_CeilingFan/event"
+      preset_mode_command_template: "fan={{value}}"
+      preset_mode_state_topic: "stat/BV_CeilingFan/FAN"
+
+  - fan:
+      name: "BM_CeilingFan"
+      unique_id: tasmota_bm_ceilingfan
+      optimistic: false
+      availability_topic: "tele/BM_CeilingFan/LWT"
+      payload_available: Online
+      payload_not_available: Offline
+      preset_modes:
+      - 'low'
+      - 'medium'
+      - 'high'
+      state_topic: "tele/BM_CeilingFan/STATE"
+      state_value_template: "{{ iif(value_json.FanSpeed == 0, 'OFF', 'ON') }}"
+      command_topic: "cmnd/BM_CeilingFan/FanSpeed"
+      preset_mode_command_topic: "cmnd/BM_CeilingFan/event"
+      preset_mode_command_template: "fan={{value}}"
+      preset_mode_state_topic: "stat/BM_CeilingFan/FAN"
+
+  - climate:
+      name: "EuromAirco"
+      unique_id: tasmota_eurom_pac_wifi
+      max_temp: 31.0
+      min_temp: 16.0
+      min_humidity: 30
+      max_humidity: 90
+      precision: 1.0
+      optimistic: false
+      temperature_unit: C
+      modes:
+        - "off"
+        - "cool"
+        - "dry"
+        - "fan_only"
+      swing_modes:
+        - "on"
+        - "off"
+      fan_modes:
+        - "high"
+        - "medium"
+        - "low"
+      power_command_topic: "cmnd/MobileAirco/power"
+      availability_topic: tele/MobileAirco/LWT
+      payload_available: Online
+      payload_not_available: Offline
+      action_topic: "tele/MobileAirco/RESULT"
+      action_template: "{{value_json['hvac_action']}}"
+      mode_command_topic: "cmnd/MobileAirco/mode"
+      mode_state_topic: "tele/MobileAirco/RESULT"
+      mode_state_template: "{{value_json['hvac_mode']}}"
+      target_humidity_command_topic: "cmnd/MobileAirco/humidity"
+      target_humidity_state_topic: "tele/MobileAirco/RESULT"
+      target_humidity_state_template: "{{value_json['target_humidity']}}"
+      temperature_command_topic: "cmnd/MobileAirco/temperature"
+      temperature_state_topic: "tele/MobileAirco/RESULT"
+      temperature_state_template: "{{value_json['target_temperature']}}"
+      fan_mode_command_topic:  "cmnd/MobileAirco/fan"
+      fan_mode_state_topic: "tele/MobileAirco/RESULT"
+      fan_mode_state_template: "{{value_json['fan_mode']}}"
+      swing_mode_command_topic:  "cmnd/MobileAirco/swing"
+      swing_mode_state_topic: "tele/MobileAirco/RESULT"
+      swing_mode_state_template: "{{value_json['swing_mode']}}"
+      json_attributes_topic: "tele/MobileAirco/RESULT"
+      json_attributes_template: "{{ value_json | tojson }}"
+      current_temperature_topic: "tele/MobileAirco/RESULT"
+      current_temperature_template: "{{value_json['current_temperature']}}"
+      current_humidity_topic: "tele/MobileAirco/RESULT"
+      current_humidity_template: "{{value_json['current_humidity']}}"
+
+
+# Load frontend themes from the themes folder
+frontend:
+  themes: !include_dir_merge_named themes
+
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+
