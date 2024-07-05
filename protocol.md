@@ -62,7 +62,7 @@ Because all commands only have 1 byte as parameter, `X1` XOR checksum is always 
   00   P1   00   00   00 | Power management, where P1: 01 == power on; 00 == power off
   01   P1   00   00   00 | Swing management, where P1: 01 == swing on; 00 swing off
   06   P1   00   00   00 | Set working mode, where P1: 01 == cool (airco); 03 == dryer; 06 == fan
-  07   P1   00   00   00 | Set air speed, where P1: 01 == high; 02 == medium; 03 == low
+  07   P1   00   00   00 | Set fan speed, where P1: 01 == high; 02 == medium; 03 == low
   08   P1   00   00   00 | Set target temperature in cool mode (airco), where P1 is the amount in C with range [16..31]
   09   P1   00   00   00 | Set target humidity in dry mode, where P1 is the amount in % with range [30..90]
   0A   P1   00   00   00 | Timer/Sleep management, where P1: 00 == timer/sleep off; NN == hour(s)
@@ -87,7 +87,7 @@ RX< 0x | 47 41 49 54 45 4B   BD   00 10 21 17 19 37 1E 00 00   26   8D   4B 45 5
 * `Status`: (9 bytes) current status data (see below).
 * `X1`: (1 byte) Checksum8 XOR bytes [`b1`, `b3`, `b5`, `b7`, `b9`].
 * `X2`: (1 byte) Checksum8 XOR bytes [`b2`, `b4`, `b6`, `b8`, `bA`].
-* `Ketiag`: (6 bytes) signature, always `KETIAG` in ascii (not used for checksums).
+* `Ketiag`: (6 bytes) terminator, always `KETIAG` in ascii (not used for checksums).
 
 For detecting and reporting changes in the environment data or device mode, is enough comparing the bytes `X1` and `X2` (XOR checksums) of the current datagram with the previously received.
 Notice `X2` is also the XOR of the ST (`BD`), all status bytes and `X1`. (`X2=XOR([b1..bA], X1)`).
@@ -154,7 +154,7 @@ RX< 0x | 47 41 49 54 45 4B   BD   00 10 21 17 19 37 1E 00 00   26   8D   4B 45 5
 
 ## Healtcheck/heartbeat
 
-Everyt 120s, the ESP sends a "healthcheck/heartbeat"  to the MCU
+Every 120s, the ESP sends a "healthcheck/heartbeat"  to the MCU, the WIFI led is on
 
 ```
 Dir    | Gaitek            | ST | Status                     | X1 | X2 | Ketiag            |
@@ -170,19 +170,19 @@ RX< 0x | 47 41 49 54 45 4B   BD   00 10 21 17 19 34 1E 00 00  26    8E   4B 45 5
 Dir    | Gaitek            | ST | Status                     | X1 | X2 | Ketiag            |
 ------ |-------------------|----|----------------------------|----|----|-------------------|
 TX> 0x | 47 41 49 54 45 4B   BD   00 01 00 00 00               00   BC
-RX< 0x | 47 41 49 54 45 4B   BD   00 10 21 17 19 34 1E 00 00   26   8E   4B 45 54 49 41 47
+RX< 0x | 47 41 49 54 45 4B   BD   01 10 31 17 19 3A 1E 00 00   37   80   4B 45 54 49 41 47
 ```
 
 2. Set fan mode (from cool mode)
 ```
-TX> 0x | 47 41 49 54 45 4B   BD   00 01 00 00 00               00   BC
-RX< 0x | 47 41 49 54 45 4B   BD   01 10 21 17 19 35 1E 00 00   27   8F   4B 45 54 49 41 47
+TX> 0x | 47 41 49 54 45 4B   BD   06 06 00 00 00               06   BB
+RX< 0x | 47 41 49 54 45 4B   BD   01 10 36 17 19 3A 1E 00 00   30   80   4B 45 54 49 41 47
 ```
 
 3. Power off
 ```
 TX> 0x | 47 41 49 54 45 4B   BD   00 00 00 00 00               00   BD
-RX< 0x | 47 41 49 54 45 4B   BD   00 10 26 17 19 35 1E 00 00   21   8F   4B 45 54 49 41 47
+RX< 0x | 47 41 49 54 45 4B   BD   00 10 36 17 19 3A 1E 00 00   31   80   4B 45 54 49 41 47
 ```
 
 ## Power on / set speed to low / set speed to high / power off
@@ -204,7 +204,7 @@ RX< 0x | 47 41 49 54 45 4B   BD  01 10 36 17 19 35 1E 00 00    30   8F   4B 45 5
 3. Set speed to high (from low)
 ```
 TX> 0x | 47 41 49 54 45 4B   BD  07 01 00 00 00                07   BC
-RX< 0x | 47 41 49 54 45 4B   BD  01 10 36 17 19 35 1E 00 00    30   8F   4B 45 54 49 41 47
+RX< 0x | 47 41 49 54 45 4B   BD  01 10 16 17 19 35 1E 00 00    10   8F   4B 45 54 49 41 47
 ```
 
 3. Power off
@@ -261,7 +261,7 @@ TX> 0x | 47 41 49 54 45 4B   BD   0A 03 00 00 00               0A   BE
 RX< 0x | 47 41 49 54 45 4B   BD   04 10 26 17 19 35 1E 03 00   25   8C   4B 45 54 49 41 47
 ```
 
-3. ESP sent heartbit (every 120s)
+3. ESP sent heartbeat (every 120s)
 ```
 TX> 0x | 47 41 49 54 45 4B   BD   FF 01 00 00 00               FF   BC
 RX< 0x | 47 41 49 54 45 4B   BD   04 10 26 17 19 35 1E 03 00   25   8C   4B 45 54 49 41 47
@@ -463,7 +463,7 @@ RX< 0x | 47 41 49 54 45 4B   BD   00 10 23 17 19 34 1E 00 00   24   8E   4B 45 5
 
 ## Power on / set cool (airco) mode / set target temperature to x / ... / power off
 
-* Temperature target is set from a range 16..31 grades centigrades
+* Temperature target is set from a range 16..31 grades Centigrade
 
 1. Power on (current mode dry, speed medium, swing off, current target temperature 25)
 ```
